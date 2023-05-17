@@ -5,7 +5,6 @@ from pandas import DataFrame
 from utils.enums import TimeFrame
 from pathlib import Path
 from config.settings import DATASETS
-from matplotlib import pyplot as plt
 
 
 def get_dataset(time_frame: TimeFrame) -> Path:

@@ -1,5 +1,7 @@
 import os
 import pkgutil
+import subprocess
+
 from config.settings import BASE_DIR
 import logging
 from importlib import import_module
@@ -32,6 +34,10 @@ class CommandHandler:
         commands = self.find_commands()
         if len(commands) == 0:
             self.logger.error("No commands implemented.")
+
+        if self.argv[1] == "test":
+            subprocess.run(["python", "-m", "unittest"])
+            return
 
         if self.argv[1] not in commands:
             self.logger.error("Invalid command.")
