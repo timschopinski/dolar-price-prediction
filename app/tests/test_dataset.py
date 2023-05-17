@@ -1,5 +1,5 @@
 import unittest
-from data.data_extractor import get_data, get_dataset
+from data.data_extractor import get_data
 from utils.enums import TimeFrame
 from pandas import DataFrame, DatetimeIndex
 
