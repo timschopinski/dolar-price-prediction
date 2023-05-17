@@ -17,7 +17,6 @@ This project aims to predict the USD/PLN price using Linear Regression and Recur
 5. go to ./app and execute `python manage.py save_chart`
 
 
-
 ### Running with docker-compose 
 
 1. Clone repository `git clone git@github.com:timschopinski/dolar-price-prediction.git` 
