@@ -28,7 +28,7 @@ class Command(BaseCommand):
     def get_parsed_args() -> Namespace:
         parser = argparse.ArgumentParser(description='Extract data within a specified date range.')
         parser.add_argument('--time_frame', type=str, help='Time frame for data extraction',
-                            default=TimeFrame.DAILY.value, choices=[str(time_frame) for time_frame in TimeFrame],
+                            default=TimeFrame.DAILY, choices=[str(time_frame) for time_frame in TimeFrame],
                             action=TimeFrameAction)
         parser.add_argument('--date_from', type=str, help='Start date for data extraction (YYYY-MM-DD)', default=None)
         parser.add_argument('--date_to', type=str, help='End date for data extraction (YYYY-MM-DD)', default=None)
