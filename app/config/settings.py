@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from utils.enums import TimeFrame
+from core.utils.enums import TimeFrame
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,3 +12,5 @@ DATASETS = {
     TimeFrame.QUARTERLY: BASE_DIR / "datasets/usdpln-quarterly.csv",
     TimeFrame.YEARLY: BASE_DIR / "datasets/usdpln-yearly.csv",
 }
+
+CHARTS_DIR = BASE_DIR / "charts"
