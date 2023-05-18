@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pandas as pd
 from pandas import DataFrame
-from utils.enums import TimeFrame
+from core.utils.enums import TimeFrame
 from pathlib import Path
 from config.settings import DATASETS
 
@@ -12,7 +12,7 @@ def get_dataset(time_frame: TimeFrame) -> Path:
 
 
 def get_data(
-    time_frame: TimeFrame,
+    time_frame: TimeFrame = TimeFrame.DAILY,
     date_from: str | None = None,
     date_to: str | None = None,
     slice_: int | None = None,
@@ -37,7 +37,11 @@ def get_data(
     return data
 
 
-def split(data: DataFrame, test_size: float = 0.2) -> Tuple:
+def split(data: DataFrame, test_size: float = 0.2) -> Tuple[DataFrame, DataFrame]:
+    """
+    :return: train_data, test_data
+    """
+
     n_test = int(len(data) * test_size)
-    train_data, test_data = data.iloc[n_test:], data.iloc[:n_test]
+    train_data, test_data = data.iloc[:-n_test], data.iloc[-n_test:]
     return train_data, test_data

@@ -1,6 +1,6 @@
 import unittest
-from data.data_extractor import get_data, split
-from utils.enums import TimeFrame
+from core.data import get_data, split
+from core.utils import TimeFrame
 from pandas import DataFrame, DatetimeIndex
 
 

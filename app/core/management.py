@@ -1,21 +1,43 @@
 import os
 import pkgutil
 import subprocess
-
+import sys
+from argparse import ArgumentParser, Namespace
 from config.settings import BASE_DIR
 import logging
 from importlib import import_module
 from abc import ABC, abstractmethod
+from core.utils.enums import TimeFrame, TimeFrameAction
 
 
 class BaseCommand(ABC):
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.WARNING)
+        stream_handler = logging.StreamHandler(sys.stdout)
+        self.logger.addHandler(stream_handler)
 
     @abstractmethod
     def handle(self, *args, **kwargs):
         raise NotImplementedError('subclasses of BaseCommand must provide a handle() method')
+
+
+class BaseCommandArgumentParser(ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_argument('--time_frame', type=str, help='Time frame for data extraction',
+                          default=TimeFrame.DAILY, choices=[str(time_frame) for time_frame in TimeFrame],
+                          action=TimeFrameAction)
+        self.add_argument('--date_from', type=str, help='Start date for data extraction (YYYY-MM-DD)', default=None)
+        self.add_argument('--date_to', type=str, help='End date for data extraction (YYYY-MM-DD)', default=None)
+        self.add_argument('--title', type=str, help='Chart title', default=None)
+        self.add_argument('--verbose', type=bool, help='Enable verbose logging (True/False)', default=False)
+
+    def parse_known_args(
+        self, args=None, namespace=None, **kwargs
+    ) -> tuple[Namespace, list[str]]:
+        self.set_defaults(title=kwargs.get("title", ""))
+        return super().parse_known_args(args, namespace)
 
 
 class CommandHandler:
@@ -43,7 +65,8 @@ class CommandHandler:
             self.logger.error("Invalid command.")
         else:
             try:
-                module = import_module(f".{commands[0]}", "core.commands")
+                command = commands[commands.index(self.argv[1])]
+                module = import_module(f".{command}", "core.commands")
                 module.Command().handle(self.argv)
             except AttributeError:
                 self.logger.error("Failed to execute Command.")
