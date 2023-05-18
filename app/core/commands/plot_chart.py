@@ -1,4 +1,3 @@
-import logging
 from argparse import Namespace
 from matplotlib import pyplot as plt
 from core.data.data_extractor import get_data
@@ -22,9 +21,8 @@ class Command(BaseCommand):
         save_chart(args.title, self.logger)
         plt.show()
 
-    def get_parsed_args(self) -> Namespace:
+    @staticmethod
+    def get_parsed_args() -> Namespace:
         parser = BaseCommandArgumentParser(description='Extract data within a specified date range.')
         args, _ = parser.parse_known_args(title="usd-pln")
-        if args.verbose:
-            self.logger.setLevel(logging.INFO)
         return args

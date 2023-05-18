@@ -4,7 +4,7 @@ from pandas import DataFrame
 
 
 def get_closed_form_solution(train_data: DataFrame) -> Tuple[float, float]:
-    x_data = (train_data.index - train_data.index[0]).days  # Adjust dates to start from zero
+    x_data = (train_data.index - train_data.index[0]).days
     y_data = train_data['Close'].values
 
     x_mean = np.mean(x_data)
@@ -14,3 +14,9 @@ def get_closed_form_solution(train_data: DataFrame) -> Tuple[float, float]:
     a = (xy_mean - x_mean * y_mean) / (x_squared_mean - x_mean ** 2)
     b = y_mean - a * x_mean
     return a, b
+
+
+def predict_price(test_data: DataFrame, train_data: DataFrame, a: float, b: float) -> DataFrame:
+    x_test = (test_data.index - train_data.index[0]).days
+    y_pred = a * x_test + b
+    return y_pred
