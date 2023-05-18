@@ -20,3 +20,15 @@ def predict_price(test_data: DataFrame, train_data: DataFrame, a: float, b: floa
     x_test = (test_data.index - train_data.index[0]).days
     y_pred = a * x_test + b
     return y_pred
+
+
+class LinearRegression:
+
+    def __init__(self, train_data: DataFrame):
+        self.train_data = train_data
+        self.a, self.b = get_closed_form_solution(self.train_data)
+
+    def predict(self, test_data: DataFrame):
+        x_test = (test_data.index - self.train_data.index[0]).days
+        y_pred = self.a * x_test + self.b
+        return y_pred
