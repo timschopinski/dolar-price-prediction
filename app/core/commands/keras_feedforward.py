@@ -1,5 +1,8 @@
 import logging
 from argparse import Namespace
+
+from pandas import DataFrame
+
 from core.data.visualization import inspect_data
 from core.management import BaseCommand, BaseCommandArgumentParser
 from core.data.mse import calculate_mse
@@ -46,13 +49,12 @@ class Command(BaseCommand):
         mse = calculate_mse(predictions, test_data['Close'].values)
         self.logger.info(f"MSE: {mse}")
 
-        # Plot the results
-        self.plot(test_data['Close'].values, predictions, args)
+        self.plot(test_data, predictions, args)
 
-    def plot(self, actual_values: np.ndarray, predictions: np.ndarray, args: Namespace):
+    def plot(self, actual_values: DataFrame, predictions: np.ndarray, args: Namespace):
         plt.figure(figsize=(12, 6))
-        plt.plot(actual_values, label='Actual')
-        plt.plot(predictions, label='Predicted')
+        plt.plot(actual_values.index, actual_values['Close'].values, label='Actual')
+        plt.plot(actual_values.index, predictions, label='Predicted')
         plt.title('USD/PLN Actual vs. Predicted Prices')
         plt.xlabel('Time')
         plt.ylabel('Price')
