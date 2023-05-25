@@ -53,8 +53,8 @@ class Command(BaseCommand):
 
     def plot(self, actual_values: DataFrame, predictions: np.ndarray, args: Namespace):
         plt.figure(figsize=(12, 6))
-        plt.plot(actual_values.index, actual_values['Close'].values, label='Actual')
-        plt.plot(actual_values.index, predictions, label='Predicted')
+        plt.plot(actual_values.index, actual_values['Close'].values, marker='o', label='Actual', c='#1f77b4')
+        plt.plot(actual_values.index, predictions, marker='o', label='Predicted', color='orange')
         plt.title('USD/PLN Actual vs. Predicted Prices')
         plt.xlabel('Time')
         plt.ylabel('Price')

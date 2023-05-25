@@ -68,5 +68,5 @@ class CommandHandler:
                 command = commands[commands.index(self.argv[1])]
                 module = import_module(f".{command}", "core.commands")
                 module.Command().handle(self.argv)
-            except AttributeError:
-                self.logger.error("Failed to execute Command.")
+            except AttributeError as e:
+                self.logger.error("Failed to execute Command.", e)
