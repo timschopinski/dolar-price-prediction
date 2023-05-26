@@ -13,3 +13,4 @@ The architecture of this neural network is sequential, meaning that the layers a
 The model is trained using the mean squared error (MSE) loss function and the Adam optimizer. The MSE loss function is commonly used for regression tasks, aiming to minimize the squared difference between the predicted and actual values.
 
 Overall, this neural network architecture can be considered a basic MLP model suitable for regression problems like predicting USD/PLN prices.
+

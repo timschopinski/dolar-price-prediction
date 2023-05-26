@@ -35,8 +35,8 @@ class Command(BaseCommand):
         self.plot(test_data, y_pred, args)
 
     def plot(self, test_data: DataFrame, y_pred: DataFrame, args: Namespace):
-        plt.plot(test_data.index, y_pred, label='Regression Line')
-        plt.scatter(test_data.index, test_data['Close'], s=2, label='Actual Data')
+        plt.plot(test_data.index, y_pred, marker='o', label='Predicted', color='orange')
+        plt.scatter(test_data.index, test_data['Close'], marker='o', label='Actual', c='#1f77b4')
         plt.xlabel('Date')
         plt.ylabel('Price')
         plt.legend()
