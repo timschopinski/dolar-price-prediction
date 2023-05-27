@@ -14,6 +14,7 @@ class TimeFrameAction(argparse.Action):
 class TimeFrame(Enum):
     DAILY = "daily"
     WEEKLY = "weekly"
+    MONTHLY = "monthly"
     QUARTERLY = "quarterly"
     YEARLY = "yearly"
 
