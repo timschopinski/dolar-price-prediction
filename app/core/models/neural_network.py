@@ -65,9 +65,6 @@ class NeuralNetwork:
         for layer in self.layers:
             output = layer.forward(output)
 
-        # Compute loss
-        loss = np.mean((output - y) ** 2)
-
         # Backpropagation
         gradient = 2 * (output - y)
         for layer in reversed(self.layers):
@@ -94,7 +91,7 @@ class NeuralNetwork:
         # Bias correction
         layer.t += 1
         momentum_weights_corrected = layer.momentum_weights / (1 - beta1 ** layer.t)
-        momentum_bias_corrected = layer.momentum_bias / (1 -beta1 ** layer.t)
+        momentum_bias_corrected = layer.momentum_bias / (1 - beta1 ** layer.t)
 
         rmsprop_weights_corrected = layer.rmsprop_weights / (1 - beta2 ** layer.t)
         rmsprop_bias_corrected = layer.rmsprop_bias / (1 - beta2 ** layer.t)

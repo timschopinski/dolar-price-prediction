@@ -55,7 +55,6 @@ class Command(BaseCommand):
 
         self.plot(test_data, predictions, args)
 
-
     def plot(self, actual_values: DataFrame, predictions: np.ndarray, args: Namespace):
         plt.figure(figsize=(12, 6))
         plt.plot(actual_values.index, actual_values['Close'].values, marker='o', label='Actual', c='#1f77b4')
