@@ -1,17 +1,12 @@
-import logging
-from argparse import Namespace
-from pandas import DataFrame
-from core.data.visualization import inspect_data, inspect_predictions
-from core.management import BaseCommand, BaseCommandArgumentParser
-from core.data.data_extractor import get_data, split
-from matplotlib import pyplot as plt
-from core.utils.files import save_chart
 import numpy as np
+from core.data.visualization import inspect_data, inspect_predictions
+from core.management import NeuralNetworkCommand
+from core.data.data_extractor import get_data, split
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow import keras
 
 
-class Command(BaseCommand):
+class Command(NeuralNetworkCommand):
     def __init__(self):
         super().__init__()
 
@@ -35,31 +30,9 @@ class Command(BaseCommand):
             keras.layers.Dense(1)
         ])
         model.compile(optimizer='adam', loss='mean_squared_error')
-        model.fit(train_features, train_target, epochs=1000, batch_size=16)
+        losses = model.fit(train_features, train_target, epochs=args.epochs, batch_size=16).history['loss']
         test_features = test_data_scaled[:, :-1]
         predictions = model.predict(test_features)
         predictions = scaler.inverse_transform(np.concatenate((test_features, predictions), axis=1))[:, -1]
         inspect_predictions(test_data['Close'].values, predictions, self.logger)
-        self.plot(test_data, predictions, args)
-
-    def plot(self, actual_values: DataFrame, predictions: np.ndarray, args: Namespace):
-        plt.figure(figsize=(12, 6))
-        plt.plot(actual_values.index, actual_values['Close'].values, marker='o', label='Actual', c='#1f77b4')
-        plt.plot(actual_values.index, predictions, marker='o', label='Predicted', color='orange')
-        plt.title('USD/PLN Actual vs. Predicted Prices')
-        plt.xlabel('Time')
-        plt.ylabel('Price')
-        plt.title("Keras FeedForward Neural Networks")
-        plt.legend()
-        save_chart(args.title, self.logger)
-        plt.show()
-
-    def get_parsed_args(self) -> Namespace:
-        parser = BaseCommandArgumentParser(
-            description='Calculate price using Feedforward Neural Networks with keras'
-        )
-        parser.add_argument('--test_size', type=float, help='Test data size', default=0.2)
-        args, _ = parser.parse_known_args(title="keras-feedforward-neural-network")
-        if args.verbose:
-            self.logger.setLevel(logging.INFO)
-        return args
+        self.plot(test_data, predictions, losses, args.title)

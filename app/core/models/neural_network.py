@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 
@@ -44,7 +46,8 @@ class NeuralNetwork:
         self.optimizer = optimizer
         self.loss = loss
 
-    def fit(self, X, y, epochs, batch_size):
+    def fit(self, X, y, epochs, batch_size) -> List[np.ndarray]:
+        losses = []
         for epoch in range(epochs):
             for batch_start in range(0, len(X), batch_size):
                 batch_end = batch_start + batch_size
@@ -54,10 +57,11 @@ class NeuralNetwork:
 
             output = self.predict(X)
             loss = np.mean((output - y) ** 2)
-
+            losses.append(loss)
             # Print the epoch and loss in the desired format
             print(f"Epoch {epoch + 1}/{epochs}")
             print(f"{len(X) // batch_size}/{len(X) // batch_size} [==============================] - {loss:.4f}")
+        return losses
 
     def train_on_batch(self, X, y):
         # Forward pass

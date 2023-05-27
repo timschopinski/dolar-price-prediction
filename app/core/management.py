@@ -2,12 +2,19 @@ import os
 import pkgutil
 import subprocess
 import sys
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from config.settings import BASE_DIR
-import logging
 from importlib import import_module
 from abc import ABC, abstractmethod
 from core.utils.enums import TimeFrame, TimeFrameAction
+import logging
+from argparse import Namespace
+from typing import List
+from pandas import DataFrame
+from matplotlib import pyplot as plt
+from core.utils.files import save_chart
+import numpy as np
+import inspect
 
 
 class BaseCommand(ABC):
@@ -38,6 +45,54 @@ class BaseCommandArgumentParser(ArgumentParser):
     ) -> tuple[Namespace, list[str]]:
         self.set_defaults(title=kwargs.get("title", ""))
         return super().parse_known_args(args, namespace)
+
+
+class NeuralNetworkCommand(BaseCommand, ABC):
+    def __init__(self):
+        super().__init__()
+
+    def handle(self, *args, **kwargs):
+        super().handle(*args, **kwargs)
+
+    def plot(self, actual_values: DataFrame, predictions: np.ndarray, losses: List[np.ndarray], title: str):
+        self.plot_predictions(actual_values, predictions, title, self.logger)
+        self.plot_losses(losses, title, self.logger)
+
+    @staticmethod
+    def plot_predictions(actual_values: DataFrame, predictions: np.ndarray, title: str, logger: logging.Logger):
+        plt.figure(figsize=(12, 6))
+        plt.plot(actual_values.index, actual_values['Close'].values, marker='o', label='Actual', c='#1f77b4')
+        plt.plot(actual_values.index, predictions, marker='o', label='Predicted', color='orange')
+        plt.title('USD/PLN Actual vs. Predicted Prices')
+        plt.xlabel('Time')
+        plt.ylabel('Price')
+        plt.title("FeedForward Neural Network")
+        plt.legend()
+        save_chart(title, logger)
+        plt.show()
+
+    @staticmethod
+    def plot_losses(losses: List[np.ndarray], title: str, logger: logging.Logger):
+        plt.plot(losses)
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss (MSE)')
+        plt.legend()
+        save_chart(f"{title}-losses", logger)
+        plt.show()
+
+    def get_parsed_args(self) -> Namespace:
+        parser = BaseCommandArgumentParser(
+            description='Calculate price using Feedforward Neural Networks'
+        )
+        parser.add_argument('--test_size', type=float, help='Test data size. Default = 0.2', default=0.2)
+        parser.add_argument('--epochs', type=int, help='Number of epochs. Default = 1000', default=1000)
+        frame = inspect.currentframe().f_back
+        module_name = inspect.getmodule(frame).__name__
+        title = module_name.split('.')[-1].replace("_", "-")
+        args, _ = parser.parse_known_args(title=title)
+        if args.verbose:
+            self.logger.setLevel(logging.INFO)
+        return args
 
 
 class CommandHandler:
