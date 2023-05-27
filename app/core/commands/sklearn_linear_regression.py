@@ -1,15 +1,10 @@
-import logging
-from argparse import Namespace
-from pandas import DataFrame
 from core.data.visualization import inspect_data, inspect_predictions
-from core.management import BaseCommand, BaseCommandArgumentParser
+from core.management import RegressionCommand
 from core.data.data_extractor import get_data, split
-from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
-from core.utils.files import save_chart
 
 
-class Command(BaseCommand):
+class Command(RegressionCommand):
     def __init__(self):
         super().__init__()
 
@@ -29,24 +24,4 @@ class Command(BaseCommand):
         x_test = (test_data.index - train_data.index[0]).days.values.reshape(-1, 1)
         y_pred = model.predict(x_test)
         inspect_predictions(test_data['Close'].values, y_pred, self.logger)
-        self.plot(test_data, y_pred, args)
-
-    def plot(self, test_data: DataFrame, y_pred: DataFrame, args: Namespace):
-        plt.plot(test_data.index, y_pred, marker='o', label='Predicted', color='orange')
-        plt.scatter(test_data.index, test_data['Close'], marker='o', label='Actual', c='#1f77b4')
-        plt.xlabel('Date')
-        plt.ylabel('Price')
-        plt.legend()
-        plt.title("SciKitLearn Linear Regression")
-        save_chart(args.title, self.logger)
-        plt.show()
-
-    def get_parsed_args(self) -> Namespace:
-        parser = BaseCommandArgumentParser(
-            description='Calculate price using Linear Regression with sklearn and save chart'
-        )
-        parser.add_argument('--test_size', type=float, help='Test data size', default=0.2)
-        args, _ = parser.parse_known_args(title="sklearn-linear-regression")
-        if args.verbose:
-            self.logger.setLevel(logging.INFO)
-        return args
+        self.plot(test_data, y_pred, args.title)

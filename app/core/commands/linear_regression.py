@@ -1,15 +1,10 @@
-import logging
-from argparse import Namespace
-from pandas import DataFrame
 from core.data.visualization import inspect_data, inspect_predictions
-from core.management import BaseCommand, BaseCommandArgumentParser
+from core.management import RegressionCommand
 from core.data.data_extractor import get_data, split
-from matplotlib import pyplot as plt
 from core.models.linear_regression import LinearRegression
-from core.utils.files import save_chart
 
 
-class Command(BaseCommand):
+class Command(RegressionCommand):
     def __init__(self):
         super().__init__()
 
@@ -25,23 +20,4 @@ class Command(BaseCommand):
         y_pred = model.predict(test_data)
 
         inspect_predictions(test_data['Close'].values, y_pred, self.logger)
-        self.plot(test_data, y_pred, args)
-
-    def plot(self, test_data: DataFrame, y: DataFrame, args: Namespace):
-        plt.figure(figsize=(12, 6))
-        plt.plot(test_data.index, y, marker='o', label='Predicted', color='orange')
-        plt.plot(test_data.index, test_data['Close'], marker='o', label='Actual', c='#1f77b4')
-        plt.xlabel('Date')
-        plt.ylabel('Price')
-        plt.legend()
-        plt.title("Linear Regression")
-        save_chart(args.title, self.logger)
-        plt.show()
-
-    def get_parsed_args(self) -> Namespace:
-        parser = BaseCommandArgumentParser(description='Calculate price using Linear Regression and save chart')
-        parser.add_argument('--test_size', type=float, help='Test data size', default=0.2)
-        args, _ = parser.parse_known_args(title="linear-regression")
-        if args.verbose:
-            self.logger.setLevel(logging.INFO)
-        return args
+        self.plot(test_data, y_pred, args.title)

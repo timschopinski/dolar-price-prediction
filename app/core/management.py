@@ -17,18 +17,6 @@ import numpy as np
 import inspect
 
 
-class BaseCommand(ABC):
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.WARNING)
-        stream_handler = logging.StreamHandler(sys.stdout)
-        self.logger.addHandler(stream_handler)
-
-    @abstractmethod
-    def handle(self, *args, **kwargs):
-        raise NotImplementedError('subclasses of BaseCommand must provide a handle() method')
-
-
 class BaseCommandArgumentParser(ArgumentParser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -47,10 +35,60 @@ class BaseCommandArgumentParser(ArgumentParser):
         return super().parse_known_args(args, namespace)
 
 
+class BaseCommand(ABC):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.WARNING)
+        stream_handler = logging.StreamHandler(sys.stdout)
+        self.logger.addHandler(stream_handler)
+
+    @abstractmethod
+    def handle(self, *args, **kwargs):
+        raise NotImplementedError('subclasses of BaseCommand must provide a handle() method')
+
+    @staticmethod
+    def plot_predictions(actual_values: DataFrame, predictions: np.ndarray, title: str, logger: logging.Logger):
+        plt.figure(figsize=(12, 6))
+        plt.plot(actual_values.index, actual_values['Close'].values, marker='o', label='Actual', c='#1f77b4')
+        plt.plot(actual_values.index, predictions, marker='o', label='Predicted', color='orange')
+        plt.xlabel('Time')
+        plt.ylabel('Price')
+        plt.title(title.replace("-", " ").capitalize())
+        plt.legend()
+        save_chart(title, logger)
+        plt.show()
+
+
+class RegressionCommand(BaseCommand):
+    def __init__(self):
+        super().__init__()
+
+    @abstractmethod
+    def handle(self, *args, **kwargs):
+        super().handle(*args, **kwargs)
+
+    def plot(self, actual_values: DataFrame, predictions: np.ndarray, title: str):
+        self.plot_predictions(actual_values, predictions, title, self.logger)
+
+    def get_parsed_args(self) -> Namespace:
+        parser = BaseCommandArgumentParser(
+            description='Calculate price using Linear Regression with sklearn and save chart'
+        )
+        parser.add_argument('--test_size', type=float, help='Test data size', default=0.2)
+        frame = inspect.currentframe().f_back
+        module_name = inspect.getmodule(frame).__name__
+        title = module_name.split('.')[-1].replace("_", "-")
+        args, _ = parser.parse_known_args(title=title)
+        if args.verbose:
+            self.logger.setLevel(logging.INFO)
+        return args
+
+
 class NeuralNetworkCommand(BaseCommand, ABC):
     def __init__(self):
         super().__init__()
 
+    @abstractmethod
     def handle(self, *args, **kwargs):
         super().handle(*args, **kwargs)
 
@@ -59,24 +97,12 @@ class NeuralNetworkCommand(BaseCommand, ABC):
         self.plot_losses(losses, title, self.logger)
 
     @staticmethod
-    def plot_predictions(actual_values: DataFrame, predictions: np.ndarray, title: str, logger: logging.Logger):
-        plt.figure(figsize=(12, 6))
-        plt.plot(actual_values.index, actual_values['Close'].values, marker='o', label='Actual', c='#1f77b4')
-        plt.plot(actual_values.index, predictions, marker='o', label='Predicted', color='orange')
-        plt.title('USD/PLN Actual vs. Predicted Prices')
-        plt.xlabel('Time')
-        plt.ylabel('Price')
-        plt.title("FeedForward Neural Network")
-        plt.legend()
-        save_chart(title, logger)
-        plt.show()
-
-    @staticmethod
     def plot_losses(losses: List[np.ndarray], title: str, logger: logging.Logger):
         plt.plot(losses)
         plt.xlabel('Epochs')
         plt.ylabel('Loss (MSE)')
-        plt.legend()
+        plt.title("")
+        plt.legend("FeedForward Neural Network Losses")
         save_chart(f"{title}-losses", logger)
         plt.show()
 

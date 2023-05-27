@@ -37,9 +37,6 @@ def predict_price(data: DataFrame, segments: List) -> Tuple[DataFrame, DataFrame
         'Date': segment_prediction_dates,
         'Close': segment_predictions
     }
-    print(actual_data_dict)
-    print(len(actual_data_dict["Date"]))
-    print(len(actual_data_dict["Close"]))
 
     # Create a dataframe
     actual_data = pd.DataFrame(actual_data_dict, index=actual_data_dict["Date"])
