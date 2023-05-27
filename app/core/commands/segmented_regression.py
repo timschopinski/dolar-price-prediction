@@ -1,7 +1,7 @@
 import logging
 from argparse import Namespace
-from pandas import DataFrame
-from core.data.visualization import inspect_data
+import pandas as pd
+from core.data.visualization import inspect_data, inspect_predictions
 from core.management import BaseCommand, BaseCommandArgumentParser
 from core.data.data_extractor import get_data
 from matplotlib import pyplot as plt
@@ -20,9 +20,14 @@ class Command(BaseCommand):
         model = SegmentedRegression(data)
 
         actual_data, predicted_data = model.predict()
+        merged_df = pd.merge(actual_data, predicted_data, on='Date', how='inner')
+        actual_values = merged_df['Close_x']
+        predicted_values = merged_df['Close_y']
+
+        inspect_predictions(actual_values.to_numpy(), predicted_values.to_numpy(), self.logger)
         self.plot(actual_data, predicted_data, args)
 
-    def plot(self, actual_data: DataFrame, predicted_data: DataFrame, args: Namespace):
+    def plot(self, actual_data: pd.DataFrame, predicted_data: pd.DataFrame, args: Namespace):
         plt.figure(figsize=(12, 6))
         plt.plot(actual_data.index, actual_data['Close'], marker='o', label='Actual', c='#1f77b4')
         plt.plot(predicted_data.index, predicted_data['Close'], marker='o', label='Predicted', color='orange')

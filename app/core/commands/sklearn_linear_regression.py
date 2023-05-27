@@ -1,9 +1,8 @@
 import logging
 from argparse import Namespace
 from pandas import DataFrame
-from core.data.visualization import inspect_data
+from core.data.visualization import inspect_data, inspect_predictions
 from core.management import BaseCommand, BaseCommandArgumentParser
-from core.data.mse import calculate_mse
 from core.data.data_extractor import get_data, split
 from matplotlib import pyplot as plt
 from sklearn.linear_model import LinearRegression
@@ -29,9 +28,7 @@ class Command(BaseCommand):
 
         x_test = (test_data.index - train_data.index[0]).days.values.reshape(-1, 1)
         y_pred = model.predict(x_test)
-        mse = calculate_mse(y_pred, test_data['Close'].values)
-        self.logger.info(f'MSE: {mse}')
-
+        inspect_predictions(test_data['Close'].values, y_pred, self.logger)
         self.plot(test_data, y_pred, args)
 
     def plot(self, test_data: DataFrame, y_pred: DataFrame, args: Namespace):

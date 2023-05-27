@@ -1,9 +1,8 @@
 import logging
 from argparse import Namespace
 from pandas import DataFrame
-from core.data.visualization import inspect_data
+from core.data.visualization import inspect_data, inspect_predictions
 from core.management import BaseCommand, BaseCommandArgumentParser
-from core.data.mse import calculate_mse
 from core.data.data_extractor import get_data, split
 from matplotlib import pyplot as plt
 from core.utils.files import save_chart
@@ -32,27 +31,16 @@ class Command(BaseCommand):
         train_target = train_data_scaled[:, -1]
         train_target = train_target.reshape(-1, 1)  # Reshape train_target
 
-        print(train_features.shape)
-        print(train_target.shape)
-
         model = NeuralNetwork()
         model.add(Layer(train_features.shape[1], 8, activation='relu'))
-        # model.add(Layer(64, 32, activation='relu'))
         model.add(Layer(8, 1, activation='linear'))
-
         model.compile(optimizer='adam', loss='mse')
-
         model.fit(train_features, train_target, epochs=1000, batch_size=16)
-
         test_features = test_data_scaled[:, :-1]
-
         predictions = model.predict(test_features)
-
         predictions = scaler.inverse_transform(np.concatenate((test_features, predictions), axis=1))[:, -1]
 
-        mse = calculate_mse(predictions, test_data['Close'].values)
-        self.logger.info(f"MSE: {mse}")
-
+        inspect_predictions(test_data['Close'].values, predictions, self.logger)
         self.plot(test_data, predictions, args)
 
     def plot(self, actual_values: DataFrame, predictions: np.ndarray, args: Namespace):
