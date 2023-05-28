@@ -1,10 +1,8 @@
-from typing import List
-
+from typing import List, Optional
 import numpy as np
 
-
 class Layer:
-    def __init__(self, input_size, output_size, activation):
+    def __init__(self, input_size: int, output_size: int, activation: str) -> None:
         self.weights = np.random.randn(input_size, output_size)
         self.bias = np.zeros((1, output_size))
         self.activation = activation
@@ -17,7 +15,7 @@ class Layer:
         self.rmsprop_bias = np.zeros_like(self.bias)
         self.t = 0  # Time step for bias correction
 
-    def forward(self, X):
+    def forward(self, X: np.ndarray) -> np.ndarray:
         self.input = X
         output = np.dot(X, self.weights) + self.bias
         if self.activation == 'relu':
@@ -26,7 +24,7 @@ class Layer:
             self.output = output
         return self.output
 
-    def backward(self, gradient):
+    def backward(self, gradient: np.ndarray) -> np.ndarray:
         if self.activation == 'relu':
             gradient = gradient * (self.output > 0)
         self.gradient_weights = np.dot(self.input.T, gradient)
@@ -36,17 +34,17 @@ class Layer:
 
 
 class NeuralNetwork:
-    def __init__(self):
-        self.layers = []
+    def __init__(self) -> None:
+        self.layers: List[Layer] = []
 
-    def add(self, layer):
+    def add(self, layer: Layer) -> None:
         self.layers.append(layer)
 
-    def compile(self, optimizer, loss):
+    def compile(self, optimizer: str, loss: str) -> None:
         self.optimizer = optimizer
         self.loss = loss
 
-    def fit(self, X, y, epochs, batch_size) -> List[np.ndarray]:
+    def fit(self, X: np.ndarray, y: np.ndarray, epochs: int, batch_size: int) -> List[np.ndarray]:
         losses = []
         for epoch in range(epochs):
             for batch_start in range(0, len(X), batch_size):
@@ -58,27 +56,24 @@ class NeuralNetwork:
             output = self.predict(X)
             loss = np.mean((output - y) ** 2)
             losses.append(loss)
-            # Print the epoch and loss in the desired format
+
             print(f"Epoch {epoch + 1}/{epochs}")
             print(f"{len(X) // batch_size}/{len(X) // batch_size} [==============================] - {loss:.4f}")
         return losses
 
-    def train_on_batch(self, X, y):
-        # Forward pass
+    def train_on_batch(self, X: np.ndarray, y: np.ndarray) -> None:
         output = X
         for layer in self.layers:
             output = layer.forward(output)
 
-        # Backpropagation
         gradient = 2 * (output - y)
         for layer in reversed(self.layers):
             gradient = layer.backward(gradient)
 
-        # Update weights and biases using Adam optimizer
         for layer in self.layers:
             self.update_layer(layer)
 
-    def update_layer(self, layer):
+    def update_layer(self, layer: Layer) -> None:
         learning_rate = 0.001
         beta1 = 0.9
         beta2 = 0.99

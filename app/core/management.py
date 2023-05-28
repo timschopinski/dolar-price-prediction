@@ -20,13 +20,13 @@ import inspect
 class BaseCommandArgumentParser(ArgumentParser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add_argument('--time_frame', type=str, help='Time frame for data extraction',
+        self.add_argument('-tf', '--time_frame', type=str, help='Time frame for data extraction',
                           default=TimeFrame.DAILY, choices=[str(time_frame) for time_frame in TimeFrame],
                           action=TimeFrameAction)
-        self.add_argument('--date_from', type=str, help='Start date for data extraction (YYYY-MM-DD)', default=None)
-        self.add_argument('--date_to', type=str, help='End date for data extraction (YYYY-MM-DD)', default=None)
-        self.add_argument('--title', type=str, help='Chart title', default=None)
-        self.add_argument('--verbose', type=bool, help='Enable verbose logging (True/False)', default=False)
+        self.add_argument('-df', '--date_from', type=str, help='Start date for data extraction (YYYY-MM-DD)', default=None)
+        self.add_argument('-dt', '--date_to', type=str, help='End date for data extraction (YYYY-MM-DD)', default=None)
+        self.add_argument('-t', '--title', type=str, help='Chart title', default=None)
+        self.add_argument('-v', '--verbose', help='Enable verbose logging (True/False)', action='store_true')
 
     def parse_known_args(
         self, args=None, namespace=None, **kwargs
@@ -74,7 +74,7 @@ class RegressionCommand(BaseCommand):
         parser = BaseCommandArgumentParser(
             description='Calculate price using Linear Regression with sklearn and save chart'
         )
-        parser.add_argument('--test_size', type=float, help='Test data size', default=0.2)
+        parser.add_argument('-ts', '--test_size', type=float, help='Test data size', default=0.2)
         frame = inspect.currentframe().f_back
         module_name = inspect.getmodule(frame).__name__
         title = module_name.split('.')[-1].replace("_", "-")
@@ -98,11 +98,19 @@ class NeuralNetworkCommand(BaseCommand, ABC):
 
     @staticmethod
     def plot_losses(losses: List[np.ndarray], title: str, logger: logging.Logger):
-        plt.plot(losses)
-        plt.xlabel('Epochs')
-        plt.ylabel('Loss (MSE)')
-        plt.title("")
-        plt.legend("FeedForward Neural Network Losses")
+        fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+
+        axes[0].plot(losses)
+        axes[0].set_xscale("log")
+        axes[0].set_xlabel('Epochs')
+        axes[0].set_ylabel('Loss (MSE)')
+        axes[0].set_title("FeedForward Neural Network Losses (Log X-axis)")
+
+        axes[1].plot(losses)
+        axes[1].set_xlabel('Epochs')
+        axes[1].set_ylabel('Loss (MSE)')
+        axes[1].set_title("FeedForward Neural Network Losses (Normal X-axis)")
+
         save_chart(f"{title}-losses", logger)
         plt.show()
 
@@ -110,8 +118,8 @@ class NeuralNetworkCommand(BaseCommand, ABC):
         parser = BaseCommandArgumentParser(
             description='Calculate price using Feedforward Neural Networks'
         )
-        parser.add_argument('--test_size', type=float, help='Test data size. Default = 0.2', default=0.2)
-        parser.add_argument('--epochs', type=int, help='Number of epochs. Default = 1000', default=1000)
+        parser.add_argument('-ts', '--test_size', type=float, help='Test data size. Default = 0.2', default=0.2)
+        parser.add_argument('-e', '--epochs', type=int, help='Number of epochs. Default = 1000', default=1000)
         frame = inspect.currentframe().f_back
         module_name = inspect.getmodule(frame).__name__
         title = module_name.split('.')[-1].replace("_", "-")

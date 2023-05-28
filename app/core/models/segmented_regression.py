@@ -14,7 +14,6 @@ def predict_price(data: DataFrame, segments: List) -> Tuple[DataFrame, DataFrame
         segment_data = data.iloc[segment]
         train_data = segment_data.iloc[:-1]
 
-        # Check if the segment has more than one row
         if len(train_data) <= 0:
             continue
 
@@ -38,7 +37,6 @@ def predict_price(data: DataFrame, segments: List) -> Tuple[DataFrame, DataFrame
         'Close': segment_predictions
     }
 
-    # Create a dataframe
     actual_data = pd.DataFrame(actual_data_dict, index=actual_data_dict["Date"])
     predicted_data = pd.DataFrame(predictions_data_dict, index=predictions_data_dict["Date"])
     return actual_data, predicted_data

@@ -7,3 +7,5 @@ seaborn==0.12.2
 keras==2.13.1rc0
 tensorflow==2.13.0rc0
 statsmodels==0.14.0
+ann_visualizer==2.5
+graphviz==0.20.1

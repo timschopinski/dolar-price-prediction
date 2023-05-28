@@ -1,4 +1,5 @@
 import numpy as np
+from ann_visualizer.visualize import ann_viz
 from core.data.visualization import inspect_data, inspect_predictions
 from core.management import NeuralNetworkCommand
 from core.data.data_extractor import get_data, split
@@ -24,7 +25,6 @@ class Command(NeuralNetworkCommand):
 
         train_features = train_data_scaled[:, :-1]
         train_target = train_data_scaled[:, -1]
-
         model = keras.Sequential([
             keras.layers.Dense(8, activation='relu', input_shape=(train_features.shape[1],)),
             keras.layers.Dense(1)
@@ -36,3 +36,4 @@ class Command(NeuralNetworkCommand):
         predictions = scaler.inverse_transform(np.concatenate((test_features, predictions), axis=1))[:, -1]
         inspect_predictions(test_data['Close'].values, predictions, self.logger)
         self.plot(test_data, predictions, losses, args.title)
+        ann_viz(model, title="Keras FeedForward", filename="graphs/keras_feedforward.gv")
