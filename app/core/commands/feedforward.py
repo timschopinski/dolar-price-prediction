@@ -1,5 +1,3 @@
-from ann_visualizer.visualize import ann_viz
-
 from core.data.visualization import inspect_data, inspect_predictions
 from core.management import NeuralNetworkCommand
 from core.data.data_extractor import get_data, split

@@ -20,16 +20,26 @@ import inspect
 class BaseCommandArgumentParser(ArgumentParser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.add_argument('-tf', '--time_frame', type=str, help='Time frame for data extraction',
-                          default=TimeFrame.DAILY, choices=[str(time_frame) for time_frame in TimeFrame],
-                          action=TimeFrameAction)
-        self.add_argument('-df', '--date_from', type=str, help='Start date for data extraction (YYYY-MM-DD)', default=None)
-        self.add_argument('-dt', '--date_to', type=str, help='End date for data extraction (YYYY-MM-DD)', default=None)
-        self.add_argument('-t', '--title', type=str, help='Chart title', default=None)
-        self.add_argument('-v', '--verbose', help='Enable verbose logging (True/False)', action='store_true')
+        self.add_argument(
+            '-tf', '--time_frame', type=str, help='Time frame for data extraction',
+            default=TimeFrame.DAILY, choices=[str(time_frame) for time_frame in TimeFrame],
+            action=TimeFrameAction
+        )
+        self.add_argument(
+            '-df', '--date_from', type=str, help='Start date for data extraction (YYYY-MM-DD)', default=None
+        )
+        self.add_argument(
+            '-dt', '--date_to', type=str, help='End date for data extraction (YYYY-MM-DD)', default=None
+        )
+        self.add_argument(
+            '-t', '--title', type=str, help='Chart title', default=None
+        )
+        self.add_argument(
+            '-v', '--verbose', help='Enable verbose logging (True/False)', action='store_true'
+        )
 
     def parse_known_args(
-        self, args=None, namespace=None, **kwargs
+            self, args=None, namespace=None, **kwargs
     ) -> tuple[Namespace, list[str]]:
         self.set_defaults(title=kwargs.get("title", ""))
         return super().parse_known_args(args, namespace)

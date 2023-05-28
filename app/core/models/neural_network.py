@@ -1,5 +1,6 @@
-from typing import List, Optional
+from typing import List
 import numpy as np
+
 
 class Layer:
     def __init__(self, input_size: int, output_size: int, activation: str) -> None:
